@@ -27,6 +27,57 @@
   nav ul { list-style: none; display: flex; gap: 2rem; }
   nav ul a { color: rgba(248,243,236,0.78); text-decoration: none; font-size: 0.85rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700; transition: color 0.2s; }
   nav ul a:hover { color: var(--wood-light); }
+
+  .nav-hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    z-index: 200;
+  }
+  .nav-hamburger span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: var(--cream);
+    transition: transform 0.25s, opacity 0.25s;
+  }
+  .nav-hamburger[aria-expanded="true"] span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .nav-hamburger[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+  .nav-hamburger[aria-expanded="true"] span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  .nav-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: var(--wood-dark);
+    border: 1px solid rgba(200,136,58,0.25);
+    border-top: none;
+    list-style: none;
+    flex-direction: column;
+    min-width: 200px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+    z-index: 150;
+  }
+  .nav-dropdown.open { display: flex; }
+  .nav-dropdown li { border-top: 1px solid rgba(248,243,236,0.08); }
+  .nav-dropdown li:first-child { border-top: none; }
+  .nav-dropdown a {
+    display: block;
+    padding: 0.9rem 1.3rem;
+    color: rgba(248,243,236,0.85);
+    text-decoration: none;
+    font-size: 0.85rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  .nav-dropdown a:hover { color: var(--wood-light); background: rgba(255,255,255,0.03); }
   .nav-cta { background: var(--wood-light); color: #fff !important; padding: 8px 20px; border-radius: 3px; }
   .nav-cta:hover { background: var(--wood-mid) !important; color: #fff !important; }
   .hero { min-height: 100vh; background: var(--wood-dark); display: flex; align-items: center; padding: 120px 5% 80px; position: relative; overflow: hidden; }
@@ -297,7 +348,8 @@
 
   @media (max-width: 768px) {
     .about-inner, .contact-inner { grid-template-columns: 1fr; gap: 2.5rem; }
-    nav ul { display: none; }
+    nav ul:not(.nav-dropdown) { display: none; }
+    .nav-hamburger { display: flex; }
     .trust-bar { gap: 1.2rem; }
     .trust-dot { display: none; }
     .gallery-grid { grid-template-columns: 1fr 1fr; }
@@ -324,6 +376,19 @@ nav {
     <li><a href="#gallery">Gallery</a></li>
     <li><a href="#reviews">Reviews</a></li>
     <li><a href="#contact" class="nav-cta">Get a Quote</a></li>
+  </ul>
+  <button class="nav-hamburger" id="navHamburger" aria-label="Open menu" aria-expanded="false">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+  <ul class="nav-dropdown" id="navDropdown">
+    <li><a href="#services">Services</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#process">Process</a></li>
+    <li><a href="#gallery">Gallery</a></li>
+    <li><a href="#reviews">Reviews</a></li>
+    <li><a href="#contact">Get a Quote</a></li>
   </ul>
 </nav>
 
@@ -741,6 +806,27 @@ I highly recommend Russell for any house carpentry work, and other handyman type
     entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
   }, { threshold: 0.12 });
   document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+  const navHamburger = document.getElementById('navHamburger');
+  const navDropdown = document.getElementById('navDropdown');
+  if (navHamburger && navDropdown) {
+    navHamburger.addEventListener('click', () => {
+      const isOpen = navDropdown.classList.toggle('open');
+      navHamburger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+    navDropdown.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        navDropdown.classList.remove('open');
+        navHamburger.setAttribute('aria-expanded', 'false');
+      });
+    });
+    document.addEventListener('click', (e) => {
+      if (!navHamburger.contains(e.target) && !navDropdown.contains(e.target)) {
+        navDropdown.classList.remove('open');
+        navHamburger.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
 
   const closetRange = document.getElementById('closetRange');
   if (closetRange) {
